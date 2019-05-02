@@ -9,9 +9,17 @@
 {%- import_yaml tplroot ~ "/osmap.yaml" as osmap %}
 {%- import_yaml tplroot ~ "/osfingermap.yaml" as osfingermap %}
 
-{%- set _merge = salt['config.get']('template:config_get_merge', default=None) %}
-{%- set _lookup = salt['config.get']('template:lookup', default={}, merge=_merge) %}
-{%- set _config = salt['config.get']('template', default={}, merge=_merge) %}
+{# determine is_salt_ssh here #}
+
+{%- if is_salt_ssh %}
+{%-   set _lookup = salt['pillar.get']('template:lookup', default={}) %}
+{%-   set _config = salt['pillar.get']('template', default={}) %}
+{#-   including the possibility of merging minion data etc. into the dict 'the salt-ssh way' #}
+{%- else %}
+{%-   set _merge = salt['config.get']('template:config_get_merge', default='recurse') %}
+{%-   set _lookup = salt['config.get']('template:lookup', default={}, merge=_merge) %}
+{%-   set _config = salt['config.get']('template', default={}, merge=_merge) %}
+{%- endif %}
 
 {%- set template = salt['grains.filter_by'](default_settings, default='template',
     merge=salt['grains.filter_by'](osfamilymap, grain='os_family',
