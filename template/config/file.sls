@@ -21,5 +21,8 @@ template-config-file-file-managed:
     - user: root
     - group: root
     - template: jinja
+    - context:
+        # needed to salt-ssh
+        tpldir: {{ tpldir }}
     - require:
       - sls: {{ sls_package_install }}
